@@ -1,0 +1,13 @@
+version: '3.5'
+
+services:
+  f8-nextjs:
+    ports:
+      - 3050:3000
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    volumes:
+      - /usr/src/app/node_modules
+      - /usr/src/app/.next
