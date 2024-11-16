@@ -1,3 +1,4 @@
+import asyncio
 import traceback
 
 from fastapi import FastAPI, Depends, HTTPException
@@ -13,10 +14,12 @@ from py_app_service.models import (
     AuthUser,
     AddQuestRequest,
     QuestModel,
-    GPTAnalyticsRequest, ShareCarbonRevenue
+    GPTAnalyticsRequest,
+    ShareCarbonRevenue,
 )
 from py_app_service.utils import jwt_middleware
 from typing import Literal
+from py_app_service.workers.tree_nft import tree_nft
 
 app = FastAPI()
 
@@ -39,6 +42,13 @@ app.add_middleware(
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
+
+
+@app.on_event("startup")
+async def worker_runner():
+    global worker_task
+    worker_task = asyncio.create_task(tree_nft())
+    print("Worker started")
 
 
 @app.get("/nonce/{address}")
@@ -145,6 +155,7 @@ async def analytics_green(data: GPTAnalyticsRequest):
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(500, str(e))
+
 
 @app.post("/carbon-revenue")
 async def analytics_green(data: ShareCarbonRevenue):

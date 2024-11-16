@@ -4,7 +4,13 @@ from datetime import datetime
 from fastapi import HTTPException
 from py_app_service.database import mongo_instance
 from py_app_service.utils.gpt_util import create_chat_completion
-from py_app_service.config import AZURE_AI_KEY, AZURE_ENDPOINT, CDP_API_PK, CDP_API_NAME, TOKEN_ADDRESS
+from py_app_service.config import (
+    AZURE_AI_KEY,
+    AZURE_ENDPOINT,
+    CDP_API_PK,
+    CDP_API_NAME,
+    TOKEN_ADDRESS,
+)
 from py_app_service.models import CarbonRevPerson
 from typing import List
 from cdp import Cdp, Wallet
@@ -129,7 +135,7 @@ class PaymentController:
             result = result_gpt.strip()
             first_index = result.find("{")
             last_index = result.rfind("}")
-            result = result[first_index: last_index + 1]
+            result = result[first_index : last_index + 1]
             result = json.loads(result)
             return {"message": "success get ai analytics", "data": result}
         except Exception as e:
@@ -158,6 +164,3 @@ class PaymentController:
             )
 
         return {"message": "success share carbon credit", "data": data}
-
-
-
