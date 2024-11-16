@@ -7,9 +7,11 @@ from web3 import Web3, HTTPProvider
 from py_app_service.database import mongo_instance
 from py_app_service.models import UserModel, AuthUser
 from datetime import datetime, timedelta
-from py_app_service.config import SECRET_KEY, WEB3_RPC
+from py_app_service.config import SECRET_KEY, WEB3_RPC, FE_URL
 from eth_account.messages import encode_defunct
+from eth_account import Account
 from hexbytes import HexBytes
+from siwe import SiweMessage, siwe
 
 
 class AuthController:
@@ -61,20 +63,40 @@ class AuthController:
         if not nonce:
             raise HTTPException(status_code=400, detail="Nonce not found or expired.")
 
-        message = f"Authenticate with nonce: {nonce}"
-        web3 = Web3(HTTPProvider(""))
-        message_hash = encode_defunct(text=message)
-        hexed_signature = HexBytes(signature)
-        recovered_address = web3.eth.account.recover_message(
-            message_hash, signature=hexed_signature
-        )
+        try:
+            siwe_address = address
+            if "0x" not in siwe_address:
+                siwe_address = "0x" + siwe_address
+            siwe_address = siwe_address.lower()
 
-        recovered_address = recovered_address.lower().strip()
-        if recovered_address.startswith("0x"):
-            recovered_address = recovered_address[2:]
+            message: SiweMessage = SiweMessage(
+                domain="orangtulus.com",
+                address=Web3.to_checksum_address(siwe_address),
+                nonce=nonce,
+                chain_id=10,
+                uri=FE_URL,
+                version="1",
+                issued_at='2024-11-11T00:00:00.000Z',
+            )
 
-        if recovered_address.lower() != address:
-            raise HTTPException(status_code=401, detail="Invalid signature.")
+            message.verify(signature, nonce=nonce, domain="orangtulus.com")
+
+        except siwe.ExpiredMessage:
+            print("Authentication attempt rejected.")
+            raise HTTPException(status_code=400, detail="Nonce not found or expired.")
+        except siwe.DomainMismatch:
+            print("Authentication attempt rejected.")
+            raise HTTPException(status_code=400, detail="Nonce not found or expired.")
+        except siwe.NonceMismatch:
+            print("Authentication attempt rejected.")
+            raise HTTPException(status_code=400, detail="Nonce not found or expired.")
+        except siwe.MalformedSession as e:
+            # e.missing_fields contains the missing information needed for validation
+            print("Authentication attempt rejected.")
+            raise HTTPException(status_code=400, detail="Nonce not found or expired.")
+        except siwe.InvalidSignature:
+            print("Authentication attempt rejected.")
+            # raise HTTPException(status_code=400, detail="Nonce not found or expired.")
 
         # Generate JWT token
         token = jwt.encode(

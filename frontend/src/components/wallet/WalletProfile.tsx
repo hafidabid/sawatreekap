@@ -9,6 +9,7 @@ import {
   Name,
   useAddress,
 } from "@coinbase/onchainkit/identity";
+
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 
 import {
@@ -22,22 +23,46 @@ import {
 } from "@coinbase/onchainkit/wallet";
 import React, { useEffect } from "react";
 import { useAuth } from "@/providers/authProvider";
+import { createSiweMessage } from "viem/siwe";
+import {
+  Checkout,
+  CheckoutButton,
+  CheckoutStatus,
+} from "@coinbase/onchainkit/checkout";
+import { useSignMessage } from "wagmi";
 
 interface WalletProfileI {
   buymode: boolean;
 }
 export default function WalletProfile(props: WalletProfileI) {
   const { address, isConnected } = useAccount();
-  const { disconnect } = useAuth();
+  const { disconnect, token } = useAuth();
+  const { signMessage } = useSignMessage();
 
   useEffect(() => {
     console.log("Wallet Address:", address);
     console.log("Is Connected:", isConnected);
   }, [address, isConnected]);
+
+  if (token && isConnected && props.buymode) {
+    return (
+      <Checkout productId={process.env.NEXT_PUBLIC_TREE_PRODUCT_ID}>
+        <CheckoutButton coinbaseBranded text="Let's plant a tree!" />
+      </Checkout>
+      // <></>
+    );
+  }
   return (
     <div className="">
       <Wallet className="">
-        <ConnectWallet withWalletAggregator={false}>
+        <ConnectWallet
+          withWalletAggregator={false}
+          // onConnect={() => {
+          //   console.log("onConnect");
+          //   signMessageAsync().then(() => {});
+          // }}
+          text="Join us"
+        >
           <Avatar className="h-6 w-6 bg-gray-500 border-2 border-white " />
           <Name className="text-white" />
         </ConnectWallet>

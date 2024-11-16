@@ -22,7 +22,7 @@ app.add_middleware(
         "POST",
         "PUT",
         "DELETE",
-        "HEAD"
+        "HEAD",
     ],  # Allows all methods (GET, POST, etc.)
     allow_headers=["*"],  # Allows all headers
 )
@@ -71,7 +71,9 @@ async def get_quests(
     search: str = "",
 ):
     try:
-        result = await QuestController.get_quest_lists(order_by, order_direction, search)
+        result = await QuestController.get_quest_lists(
+            order_by, order_direction, search
+        )
         return result
     except HTTPException as e:
         traceback.print_exc()

@@ -1,13 +1,8 @@
 'use client';
-import {connectorsForWallets} from '@rainbow-me/rainbowkit';
-import {
-    coinbaseWallet,
-    metaMaskWallet,
-    rainbowWallet,
-} from '@rainbow-me/rainbowkit/wallets';
 import {useMemo} from 'react';
 import {http, createConfig, createStorage, cookieStorage} from 'wagmi';
 import { GetChain } from './getchain';
+import { coinbaseWallet } from 'wagmi/connectors';
 
 export function useWagmiConfig() {
 
@@ -16,34 +11,22 @@ export function useWagmiConfig() {
 
 
         const wagmiConfig = createConfig({
-            chains: [chain],
-            // turn off injected provider discovery
-            multiInjectedProviderDiscovery: false,
-            connectors: connectorsForWallets(
-                [
-                    {
-                        groupName: 'Recommended Wallet',
-                        wallets: [coinbaseWallet],
-                    },
-                    {
-                        groupName: 'Other Wallets',
-                        wallets: [rainbowWallet, metaMaskWallet],
-                    },
-
-                ],
-                {
-                    appName: 'onchainkit',
-                    projectId: `${process.env.NEXT_PUBLIC_ONCHAIN_PROJECT_ID}`
-                }
-            ),
-            storage: createStorage({
-                storage: cookieStorage,
-            }),
-            ssr: true,
-            //@ts-ignore
-            transports: {
-                [chain.id]: http(), // add baseSepolia for testing
-            },
+            chains: [GetChain()], // add baseSepolia for testing
+    connectors: [
+      coinbaseWallet({
+        appName: "OnchainKit",
+        preference: 'smartWalletOnly',
+        version: '4',
+      }),
+    ],
+    storage: createStorage({
+      storage: cookieStorage,
+    }),
+    ssr: true,
+     //@ts-ignore
+    transports: {
+      [GetChain().id]: http(), // add baseSepolia for testing
+    },
         });
 
         return wagmiConfig;

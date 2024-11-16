@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@coinbase/onchainkit": "^0.33.6",
+    "@coinbase/onchainkit": "^0.35.5",
     "@heroicons/react": "^2.1.5",
     "@mui/material": "^6.1.7",
     "axios": "^1.7.5",

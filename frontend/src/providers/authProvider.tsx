@@ -4,6 +4,8 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useAccount, useDisconnect, useSignMessage } from "wagmi";
 import clsx from "clsx";
+import { createSiweMessage } from "viem/siwe";
+import { GetChain } from "@/cdp/getchain";
 
 interface AuthorizationContextProps {
   address: string | null;
@@ -87,9 +89,21 @@ const AuthorizationProvider: React.FC<{ children: React.ReactNode }> = ({
     if (address && nonce) {
       setIsLoading(true);
       try {
-        const signature = await signMessageAsync({
-          message: `Authenticate with nonce: ${nonce}`,
+        //try siwe
+        const message = createSiweMessage({
+          address: address,
+          chainId: 10,
+          domain: "orangtulus.com",
+          nonce: nonce,
+          uri: window.location.href,
+          version: "1",
+          issuedAt: new Date("2024-11-11T00:00:00.000Z"),
         });
+
+        const signature = await signMessageAsync({
+          message: message,
+        });
+
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URI}/authenticate`,
           {
@@ -116,8 +130,9 @@ const AuthorizationProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   useEffect(() => {
-    if (isConnected) checkAuth();
-  }, [isConnected]);
+    console.log("isConnected and address", isConnected, address);
+    if (isConnected && address) checkAuth();
+  }, [address, isConnected]);
 
   return (
     <AuthorizationContext.Provider
