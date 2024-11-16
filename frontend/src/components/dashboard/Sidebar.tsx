@@ -1,5 +1,6 @@
 import React from 'react';
 import SidebarItem from './SidebarItem';
+import { useRouter } from 'next/router';
 import {
     HomeIcon,
     GiftIcon,
@@ -9,9 +10,18 @@ import {
 } from '@heroicons/react/24/outline';
 
 const Sidebar: React.FC = () => {
+    const router = useRouter();
+
+    const handleClick = () => {
+        router.push('/'); // Navigates to the base URL
+    };
+
     return (
         <aside className="w-64 bg-gray-800 text-gray-300 min-h-screen flex flex-col p-4">
-            <div className="flex items-center justify-center text-l mb-6 text-green-600">
+            <div
+                onClick={handleClick}
+                className="flex items-center justify-center text-l mb-6 text-green-600 cursor-pointer"
+            >
                 <img src="/logo_no_title.png" alt="Logo" className="w-8 h-8 mr-2" />
                 Sawatreekap
             </div>
