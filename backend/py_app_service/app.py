@@ -9,7 +9,12 @@ from py_app_service.controllers import (
     PaymentController,
     QuestController,
 )
-from py_app_service.models import AuthUser, AddQuestRequest, QuestModel, GPTAnalyticsRequest
+from py_app_service.models import (
+    AuthUser,
+    AddQuestRequest,
+    QuestModel,
+    GPTAnalyticsRequest, ShareCarbonRevenue
+)
 from py_app_service.utils import jwt_middleware
 from typing import Literal
 
@@ -123,6 +128,7 @@ async def payment_notification(data: dict):
         traceback.print_exc()
         raise HTTPException(500, str(e))
 
+
 @app.post("/analytics-green")
 async def analytics_green(data: GPTAnalyticsRequest):
     try:
@@ -131,6 +137,23 @@ async def analytics_green(data: GPTAnalyticsRequest):
             raise HTTPException(status_code=401, detail="Unauthorized")
 
         res = await PaymentController.carbon_credit_share_agent(data.yield_share)
+        return res
+
+    except HTTPException as e:
+        traceback.print_exc()
+        raise e
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(500, str(e))
+
+@app.post("/carbon-revenue")
+async def analytics_green(data: ShareCarbonRevenue):
+    try:
+        # parse security key
+        if data.security_key != AZURE_SECURITY:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+
+        res = await PaymentController.share_carbon_credit(data.persons)
         return res
 
     except HTTPException as e:

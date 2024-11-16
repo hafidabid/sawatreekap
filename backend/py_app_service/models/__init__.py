@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, Union
+from typing import Optional, Union, List
 
 
 class UserModel(BaseModel):
@@ -52,6 +52,17 @@ class ImageStorageModel(BaseModel):
     updated_at: Optional[Union[int, float]] = None
     tx_hash: str
 
+
 class GPTAnalyticsRequest(BaseModel):
     yield_share: float
     security_key: str
+
+
+class CarbonRevPerson(BaseModel):
+    address: str
+    amount: float
+
+
+class ShareCarbonRevenue(BaseModel):
+    security_key: str
+    persons: List[CarbonRevPerson]

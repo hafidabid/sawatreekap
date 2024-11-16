@@ -4,7 +4,10 @@ from datetime import datetime
 from fastapi import HTTPException
 from py_app_service.database import mongo_instance
 from py_app_service.utils.gpt_util import create_chat_completion
-from py_app_service.config import AZURE_AI_KEY, AZURE_ENDPOINT
+from py_app_service.config import AZURE_AI_KEY, AZURE_ENDPOINT, CDP_API_PK, CDP_API_NAME, TOKEN_ADDRESS
+from py_app_service.models import CarbonRevPerson
+from typing import List
+from cdp import Cdp, Wallet
 
 
 class PaymentController:
@@ -54,7 +57,11 @@ class PaymentController:
 
     @classmethod
     async def carbon_credit_share_agent(cls, yield_carbon: float):
-        tree_data = await mongo_instance["tree_transaction"].find({"user_id": {"$ne": None}}).to_list(length=None)
+        tree_data = (
+            await mongo_instance["tree_transaction"]
+            .find({"user_id": {"$ne": None}})
+            .to_list(length=None)
+        )
 
         mapper = {}
 
@@ -86,7 +93,9 @@ class PaymentController:
             "have planted by user (representated by crypto address). Here is the users with their plantations in this past semester:\n{}\n. ".format(
                 str(
                     [
-                        "address: {} has {} trees".format(tree["address"], tree["amount"])
+                        "address: {} has {} trees".format(
+                            tree["address"], tree["amount"]
+                        )
                         for tree in user_tree
                     ]
                 )
@@ -95,14 +104,12 @@ class PaymentController:
             'to you, also giving impact meter in number and message to user. the output should be in array of JSON, like this:\n\n[{"address": address, ',
             '"carbon_amount": number, "tree_amount": number, "token_amount": number, "impact_meter": number, "message":str}]\n\n',
             'If user has no carbon credit, return [{"address": address, "carbon_amount": 0, "tree_amount": 0, "token_amount": 0, "impact_meter": 0, ',
-            '"message":str}]\n\n Please make the output only in array JSON format without any additional text'
+            '"message":str}]\n\n Please make the output only in array JSON format without any additional text',
         )
 
-        system_prompt = ' '.join(system_prompt)
+        system_prompt = " ".join(system_prompt)
         user_prompt = "we have yield of {} to share with user".format(yield_carbon)
-        memory_gpt = [
-            {"role": "system", "content": system_prompt}
-        ]
+        memory_gpt = [{"role": "system", "content": system_prompt}]
 
         print(user_prompt)
         print()
@@ -124,17 +131,33 @@ class PaymentController:
             last_index = result.rfind("}")
             result = result[first_index: last_index + 1]
             result = json.loads(result)
-            return {
-                "message": "success get ai analytics",
-                "data": result
-            }
+            return {"message": "success get ai analytics", "data": result}
         except Exception as e:
-            print('ai parsing err: ', e)
-            return {
-                "message": "success get ai analytics",
-                "data": result_gpt
-            }
+            print("ai parsing err: ", e)
+            return {"message": "success get ai analytics", "data": result_gpt}
 
     @classmethod
-    async def share_carbon_credit(cls, data):
-        pass
+    async def share_carbon_credit(cls, data: List[CarbonRevPerson]):
+        Cdp.configure(CDP_API_NAME, CDP_API_PK)
+        Cdp.use_server_signer = True
+
+        wallet = Wallet.create()
+
+        for person in data:
+            address = person.address
+            amount = person.carbon_amount
+            wallet.transfer(amount, address)
+
+            await mongo_instance["share_credit_history"].insert_one(
+                {
+                    "address": address,
+                    "amount": amount,
+                    "created_at": datetime.now().timestamp(),
+                    "updated_at": datetime.now().timestamp(),
+                }
+            )
+
+        return {"message": "success share carbon credit", "data": data}
+
+
+
