@@ -4,8 +4,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from starlette.middleware.cors import CORSMiddleware
 
 from py_app_service.config import SECRET_KEY
-from py_app_service.controllers import AuthController
-from py_app_service.controllers.quests import QuestController
+from py_app_service.controllers import AuthController, PaymentController, QuestController
 from py_app_service.models import AuthUser, AddQuestRequest, QuestModel
 from py_app_service.utils import jwt_middleware
 from typing import Literal
@@ -66,9 +65,9 @@ async def test_middleware(user=Depends(jwt_middleware)):
 
 @app.get("/quests")
 async def get_quests(
-    order_by: Literal["title", "created_at", "updated_at"] = "created_at",
-    order_direction: Literal["asc", "desc"] = "asc",
-    search: str = "",
+        order_by: Literal["title", "created_at", "updated_at"] = "created_at",
+        order_direction: Literal["asc", "desc"] = "asc",
+        search: str = "",
 ):
     try:
         result = await QuestController.get_quest_lists(
@@ -98,6 +97,21 @@ async def add_quests(quest: AddQuestRequest):
 
         result = await QuestController.add_quests(quest)
         return result
+    except HTTPException as e:
+        traceback.print_exc()
+        raise e
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(500, str(e))
+
+
+@app.post("/payment-notification")
+async def payment_notification(data: dict):
+    try:
+        # parse security key
+        res = await PaymentController.coinbase_webhook(data)
+        return res
+
     except HTTPException as e:
         traceback.print_exc()
         raise e
