@@ -36,14 +36,13 @@ class PaymentController:
         if status == "charge:confirmed":
             # find related address
             address = address.lower().strip()
-            if address.startswith("0x"):
-                address = address[2:]
 
             user = await mongo_instance["users"].find_one({"address": address})
 
-            uid = None
-            if user:
-                uid = user["_id"]
+            if not user:
+                raise HTTPException(400, "user not found")
+
+            uid = user["_id"]
 
             # create new instance for job processing
             now = datetime.now().timestamp()

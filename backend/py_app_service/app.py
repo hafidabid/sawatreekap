@@ -10,6 +10,7 @@ from py_app_service.controllers import (
     PaymentController,
     QuestController,
 )
+from py_app_service.controllers.my_tree import MyTree
 from py_app_service.models import (
     AuthUser,
     AddQuestRequest,
@@ -80,6 +81,12 @@ async def authenticate(auth_data: AuthUser):
 @app.get("/test-middleware")
 async def test_middleware(user=Depends(jwt_middleware)):
     return {"message": "this is yours", "data": user}
+
+@app.get("/my-tree")
+async def my_tree(user=Depends(jwt_middleware)):
+    address = user["address"]
+    data = await MyTree.get_my_tree_nft(address)
+    return {"message": "this is yours", "data": data}
 
 
 @app.get("/quests")

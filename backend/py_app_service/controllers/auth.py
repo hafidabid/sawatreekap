@@ -23,10 +23,6 @@ class AuthController:
         now = datetime.now().timestamp()
         address = address.lower().strip()
 
-        # check for 0x
-        if address.startswith("0x"):
-            address = address[2:]
-
         # search user with similar address
         user = await mongo_instance["users"].find_one({"address": address})
         if user:
@@ -47,10 +43,6 @@ class AuthController:
         address = auth_data.address.lower().strip()
         signature = auth_data.signature
 
-        # check for 0x
-        if address.startswith("0x"):
-            address = address[2:]
-
         # get user data from database
 
         user = await mongo_instance["users"].find_one({"address": address})
@@ -65,8 +57,6 @@ class AuthController:
 
         try:
             siwe_address = address
-            if "0x" not in siwe_address:
-                siwe_address = "0x" + siwe_address
             siwe_address = siwe_address.lower()
 
             message: SiweMessage = SiweMessage(

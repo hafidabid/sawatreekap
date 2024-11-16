@@ -497,11 +497,6 @@ async def tree_nft():
 
             for tree in process_tree:
                 tree_address = tree["address"]
-                # process address begin with 0x
-                if not tree_address.startswith("0x"):
-                    tree_address = "0x" + tree_address
-
-                #
 
                 tree_amount = 1
 
@@ -544,11 +539,15 @@ async def tree_nft():
                 # update status in table tree_transaction
                 now = datetime.now().timestamp()
                 ta = tree_address.lower().strip()
-                if ta.startswith("0x"):
-                    ta = ta[2:]
+
+                tx_hash = txn_receipt["transactionHash"]
+                # convert it to string
+                tx_hash = web3.eth.get_transaction_receipt(tx_hash)
+
+
                 await mongo_instance["tree_transaction"].update_many(
                     {"address": ta},
-                    {"$set": {"finished_at": now, "status": "ok", "updated_at": now, "txHash": str(txn_receipt["transactionHash"])}},
+                    {"$set": {"finished_at": now, "status": "ok", "updated_at": now, "txHash": tx_hash, "token_id": new_token_id}},
                 )
 
         except Exception as e:
