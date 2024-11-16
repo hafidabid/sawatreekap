@@ -1,14 +1,26 @@
+import { useRouter } from 'next/router';
+
 interface SidebarItemProps {
     icon: React.ReactNode;
     label: string;
+    path: string;
     badge?: string;
     children?: React.ReactNode;
 }
 
-const SidebarItem: React.FC<SidebarItemProps> = ({ icon, label, badge, children }) => {
+const SidebarItem: React.FC<SidebarItemProps> = ({ icon, label, path, badge, children }) => {
+    const router = useRouter();
+
+    const handleClick = () => {
+        router.push(path); // Navigate to the specified path
+    };
+
     return (
         <div className="mb-2">
-            <div className="flex items-center justify-between text-gray-300 hover:bg-gray-700 p-3 rounded-lg cursor-pointer">
+            <div
+                className="flex items-center justify-between text-white hover:bg-green-600 p-3 rounded-lg cursor-pointer"
+                onClick={handleClick}
+            >
                 <div className="flex items-center space-x-3">
                     {icon}
                     <span className="text-sm">{label}</span>

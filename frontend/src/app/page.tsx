@@ -4,6 +4,7 @@ import Footer from "../components/homepage/Footer";
 import AboutSection from "@/components/homepage/AboutSection";
 import LeaderboardSection from "@/components/homepage/LeaderboardSection";
 import ProjectImpact from "@/components/homepage/ProjectImpact";
+import "../styles/global.css";
 
 const Home: React.FC = () => {
   return (
