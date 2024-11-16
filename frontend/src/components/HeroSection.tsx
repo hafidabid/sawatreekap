@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import {ChevronDoubleDownIcon} from "@heroicons/react/24/outline";
 
 const HeroSection: React.FC = () => {
     return (
@@ -26,15 +27,15 @@ const HeroSection: React.FC = () => {
                     <p className="text-xl mt-6">
                         Every Tree Planted Helps Combat Climate Change by Leveraging Blockchain for Transparency, Efficiency, and Global Impact. Join Us in Building a Sustainable World, One Tree at a Time.
                     </p>
-                    <div className="mt-8">
+                    <div className="flex flex-col gap-2 mt-8">
                         <button className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full mr-4"
                         >
                             Get started
                         </button>
                         <button
-                            className="border border-white text-white px-6 py-3 rounded-full hover:bg-white hover:bg-gray-500 transition-colors duration-200"
+                            className="flex flex-row w-full items-center justify-center text-white px-6 py-3 rounded-full hover:bg-white hover:bg-gray-500 transition-colors duration-200"
                         >
-                            Learn More
+                            Learn More <ChevronDoubleDownIcon className="w-5 h-5 ml-2" />
                         </button>
                     </div>
                 </div>
