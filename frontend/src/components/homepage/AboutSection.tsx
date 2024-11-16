@@ -2,7 +2,7 @@ import Image from 'next/image';
 
 const AboutSection: React.FC = () => {
     return (
-        <section className="bg-black flex flex-col md:flex-row items-center justify-between py-10 mb-36 px-6 md:px-20">
+        <section className="bg-black flex flex-col md:flex-row items-center justify-between py-10 mb-36 px-6 md:px-20" id="about-section">
             <div className="text-white max-w-lg ml-36">
                 <h1 className="text-7xl font-bold mb-4">What is Sawatreekap?</h1>
                 <p className="text-xl">

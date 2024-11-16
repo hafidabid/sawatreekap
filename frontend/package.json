@@ -11,15 +11,18 @@
   "dependencies": {
     "@coinbase/onchainkit": "^0.33.6",
     "@heroicons/react": "^2.1.5",
+    "@mui/material": "^6.1.7",
     "axios": "^1.7.5",
     "next": "^14.2.5",
     "permissionless": "^0.1.26",
+    "chart.js": "^4.4.6",
     "react": "^18",
+    "react-chartjs-2": "^5.2.0",
     "react-dom": "^18",
     "siwe": "^2.3.2"
   },
   "devDependencies": {
-  "@biomejs/biome": "^1.8.0",
+    "@biomejs/biome": "^1.8.0",
     "@types/node": "^20.11.8",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.7",
