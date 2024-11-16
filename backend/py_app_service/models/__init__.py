@@ -51,3 +51,7 @@ class ImageStorageModel(BaseModel):
     created_at: Optional[Union[int, float]] = None
     updated_at: Optional[Union[int, float]] = None
     tx_hash: str
+
+class GPTAnalyticsRequest(BaseModel):
+    yield_share: float
+    security_key: str

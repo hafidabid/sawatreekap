@@ -76,7 +76,7 @@ class AuthController:
                 chain_id=10,
                 uri=FE_URL,
                 version="1",
-                issued_at='2024-11-11T00:00:00.000Z',
+                issued_at="2024-11-11T00:00:00.000Z",
             )
 
             message.verify(signature, nonce=nonce, domain="orangtulus.com")
