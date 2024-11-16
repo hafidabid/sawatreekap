@@ -14,7 +14,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
+    allow_origins="*",  # Allows all origins
     allow_credentials=True,
     allow_methods=[
         "PATCH",
@@ -22,6 +22,7 @@ app.add_middleware(
         "POST",
         "PUT",
         "DELETE",
+        "HEAD"
     ],  # Allows all methods (GET, POST, etc.)
     allow_headers=["*"],  # Allows all headers
 )
@@ -35,7 +36,7 @@ async def root():
 @app.get("/nonce/{address}")
 async def get_nonce(address: str):
     try:
-        result = AuthController.get_nonce(address)
+        result = await AuthController.get_nonce(address)
         return result
     except HTTPException as e:
         traceback.print_exc()
@@ -48,7 +49,7 @@ async def get_nonce(address: str):
 @app.post("/authenticate")
 async def authenticate(auth_data: AuthUser):
     try:
-        result = AuthController.authenticate(auth_data)
+        result = await AuthController.authenticate(auth_data)
         return result
     except HTTPException as e:
         traceback.print_exc()
@@ -70,7 +71,7 @@ async def get_quests(
     search: str = "",
 ):
     try:
-        result = QuestController.get_quest_lists(order_by, order_direction, search)
+        result = await QuestController.get_quest_lists(order_by, order_direction, search)
         return result
     except HTTPException as e:
         traceback.print_exc()
@@ -93,7 +94,7 @@ async def add_quests(quest: AddQuestRequest):
 
         quest = QuestModel(**q_dict)
 
-        result = QuestController.add_quests(quest)
+        result = await QuestController.add_quests(quest)
         return result
     except HTTPException as e:
         traceback.print_exc()

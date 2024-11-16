@@ -1,12 +1,12 @@
 "use client";
 
-import Header from "../components/Header";
-import HeroSection from "../components/HeroSection";
-import Footer from "../components/Footer";
-import AboutSection from "@/components/AboutSection";
-import LeaderboardSection from "@/components/LeaderboardSection";
-import ProjectImpact from "@/components/ProjectImpact";
 import {WagmiProvider} from "wagmi";
+import Header from "@/components/homepage/Header";
+import HeroSection from "@/components/homepage/HeroSection";
+import AboutSection from "@/components/homepage/AboutSection";
+import LeaderboardSection from "@/components/homepage/LeaderboardSection";
+import ProjectImpact from "@/components/homepage/ProjectImpact";
+import Footer from "@/components/homepage/Footer";
 
 const Home: React.FC = () => {
     return (

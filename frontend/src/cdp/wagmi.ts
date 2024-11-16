@@ -7,36 +7,42 @@ import {
 } from '@rainbow-me/rainbowkit/wallets';
 import {useMemo} from 'react';
 import {http, createConfig, createStorage, cookieStorage} from 'wagmi';
-import {base, baseSepolia} from 'wagmi/chains';
+import { GetChain } from './getchain';
 
 export function useWagmiConfig() {
 
-
+    const chain = GetChain()
     return useMemo(() => {
 
 
         const wagmiConfig = createConfig({
-            chains: [base],
+            chains: [chain],
             // turn off injected provider discovery
             multiInjectedProviderDiscovery: false,
             connectors: connectorsForWallets(
                 [
-               {
-          groupName: 'Recommended Wallet',
-          wallets: [coinbaseWallet],
-        },
-            ],
+                    {
+                        groupName: 'Recommended Wallet',
+                        wallets: [coinbaseWallet],
+                    },
+                    {
+                        groupName: 'Other Wallets',
+                        wallets: [rainbowWallet, metaMaskWallet],
+                    },
+
+                ],
                 {
                     appName: 'onchainkit',
-                  projectId: `${process.env.NEXT_PUBLIC_ONCHAIN_PROJECT_ID}`
+                    projectId: `${process.env.NEXT_PUBLIC_ONCHAIN_PROJECT_ID}`
                 }
             ),
             storage: createStorage({
                 storage: cookieStorage,
             }),
             ssr: true,
+            //@ts-ignore
             transports: {
-                [base.id]: http(), // add baseSepolia for testing
+                [chain.id]: http(), // add baseSepolia for testing
             },
         });
 

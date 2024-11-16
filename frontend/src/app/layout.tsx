@@ -1,17 +1,18 @@
-import type {Metadata} from "next";
+import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import dynamic from "next/dynamic";
+import { AuthorizationProvider } from "@/providers/authProvider";
 
 const geistSans = localFont({
-    src: "./fonts/GeistVF.woff",
-    variable: "--font-geist-sans",
-    weight: "100 900",
+  src: "./fonts/GeistVF.woff",
+  variable: "--font-geist-sans",
+  weight: "100 900",
 });
 const geistMono = localFont({
-    src: "./fonts/GeistMonoVF.woff",
-    variable: "--font-geist-mono",
-    weight: "100 900",
+  src: "./fonts/GeistMonoVF.woff",
+  variable: "--font-geist-mono",
+  weight: "100 900",
 });
 
 const OnchainProviders = dynamic(
@@ -22,24 +23,24 @@ const OnchainProviders = dynamic(
 );
 
 export const metadata: Metadata = {
-    title: "Sawatreekap",
-    description: "Plant for better future",
+  title: "Sawatreekap",
+  description: "Plant for better future",
 };
 
 export default function RootLayout({
-                                       children,
-                                   }: Readonly<{
-    children: React.ReactNode;
+  children,
+}: Readonly<{
+  children: React.ReactNode;
 }>) {
-    return (
-        <html lang="en">
-        <body
-            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
+  return (
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         <OnchainProviders>
-            {children}
+          <AuthorizationProvider>{children}</AuthorizationProvider>
         </OnchainProviders>
-        </body>
-        </html>
-    );
+      </body>
+    </html>
+  );
 }

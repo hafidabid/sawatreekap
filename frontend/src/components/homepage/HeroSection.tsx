@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { ChevronDoubleDownIcon } from "@heroicons/react/24/outline";
+import WalletProfile from "@/components/wallet/WalletProfile";
 
 const HeroSection: React.FC = () => {
     const handleScroll = () => {
@@ -36,11 +37,11 @@ const HeroSection: React.FC = () => {
                     <p className="text-xl mt-6">
                         Every Tree Planted Helps Combat Climate Change by Leveraging Blockchain for Transparency, Efficiency, and Global Impact. Join Us in Building a Sustainable World, One Tree at a Time.
                     </p>
-                    <div className="flex flex-col gap-2 mt-8 items-center justify-center">
-                        <button className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full mr-4 w-1/4"
-                        >
-                            Get started
-                        </button>
+                    <div className="w-full flex flex-col gap-2 mt-8 items-center justify-center">
+                        <div className="w-full flex flex-row items-center justify-center">
+                            <WalletProfile buymode={true}/>
+                        </div>
+
                         <button
                             className="flex flex-row w-full items-center justify-center text-white px-6 py-3 rounded-full transition-colors duration-200 hover:text-gray-500"
                             onClick={handleScroll}
