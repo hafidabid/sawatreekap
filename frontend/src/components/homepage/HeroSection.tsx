@@ -1,7 +1,16 @@
+"use client"
+
 import Image from 'next/image';
-import {ChevronDoubleDownIcon} from "@heroicons/react/24/outline";
+import { ChevronDoubleDownIcon } from "@heroicons/react/24/outline";
 
 const HeroSection: React.FC = () => {
+    const handleScroll = () => {
+        const section = document.getElementById('about-section');
+        if (section) {
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
     return (
         <section className="bg-black text-white text-center py-16">
             <div
@@ -27,13 +36,14 @@ const HeroSection: React.FC = () => {
                     <p className="text-xl mt-6">
                         Every Tree Planted Helps Combat Climate Change by Leveraging Blockchain for Transparency, Efficiency, and Global Impact. Join Us in Building a Sustainable World, One Tree at a Time.
                     </p>
-                    <div className="flex flex-col gap-2 mt-8">
-                        <button className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full mr-4"
+                    <div className="flex flex-col gap-2 mt-8 items-center justify-center">
+                        <button className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full mr-4 w-1/4"
                         >
                             Get started
                         </button>
                         <button
-                            className="flex flex-row w-full items-center justify-center text-white px-6 py-3 rounded-full hover:bg-white hover:bg-gray-500 transition-colors duration-200"
+                            className="flex flex-row w-full items-center justify-center text-white px-6 py-3 rounded-full transition-colors duration-200 hover:text-gray-500"
+                            onClick={handleScroll}
                         >
                             Learn More <ChevronDoubleDownIcon className="w-5 h-5 ml-2" />
                         </button>

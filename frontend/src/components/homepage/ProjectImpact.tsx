@@ -54,7 +54,7 @@ const ProjectImpact: React.FC = () => {
                         <span key={i} className="text-4xl text-green-500">🌲</span>
                     ))}
                 </div>
-                <p className="text-sm text-green-700 mt-4">
+                <p className="text-xs text-green-700 mt-4">
                     Follow our progress as we move closer to achieving our reforestation goal.
                 </p>
             </div>
