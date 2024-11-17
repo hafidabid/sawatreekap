@@ -14,6 +14,7 @@ const Achievement: React.FC = () => {
             </div>
             <AchievementTab />
         </Layout>
+
     );
 };
 
