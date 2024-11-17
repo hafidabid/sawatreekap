@@ -106,6 +106,12 @@ async def my_tree(user=Depends(jwt_middleware)):
     return {"message": "this is yours a", "data": data}
 
 
+@app.get("/rank")
+async def rank():
+    data = await MyTree.get_rank()
+    return {"message": "this is yours a", "data": data}
+
+
 @app.get("/quests")
 async def get_quests(
     order_by: Literal["title", "created_at", "updated_at"] = "created_at",

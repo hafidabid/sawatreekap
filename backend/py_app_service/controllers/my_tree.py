@@ -49,3 +49,27 @@ class MyTree:
             res.append(tree)
 
         return res
+
+    @classmethod
+    async def get_rank(cls):
+        tree_tx = await mongo_instance["tree_transaction"].find().to_list(length=None)
+
+        temp = {}
+
+        for tree in tree_tx:
+            address = tree["address"]
+            if address in temp.keys():
+                temp[address] += 1
+            else:
+                temp[address] = 1
+
+        res = []
+        for address in temp.keys():
+            res.append({"address": address, "amount": temp[address]})
+
+        res.sort(key=lambda x: x["amount"], reverse=True)
+
+        for i in range(len(res)):
+            res[i]["rank"] = i+1
+
+        return res
