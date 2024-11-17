@@ -9,11 +9,9 @@ from py_app_service.config import (
     AZURE_ENDPOINT,
     CDP_API_PK,
     CDP_API_NAME,
-    TOKEN_ADDRESS,
 )
 from py_app_service.models import CarbonRevPerson
 from typing import List
-from cdp import Cdp, Wallet
 
 
 class PaymentController:

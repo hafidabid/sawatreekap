@@ -46,6 +46,8 @@ class MyTree:
         res = []
         for tree in my_award:
             tree["_id"] = str(tree["_id"])
+            tree['quest'] = await mongo_instance["quests"].find_one({"_id": tree['quest_id']})
+            tree['quest']['_id'] = str(tree['quest']['_id'])
             res.append(tree)
 
         return res

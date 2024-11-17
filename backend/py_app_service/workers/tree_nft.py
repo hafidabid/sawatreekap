@@ -3,7 +3,6 @@ import traceback
 from datetime import datetime
 
 from py_app_service.database import mongo_instance
-from cdp import Cdp
 from web3 import Web3
 from py_app_service.config import (
     NFT_CHAIN,
@@ -11,7 +10,6 @@ from py_app_service.config import (
     NFT_ADMIN_PK,
     NFT_CONTRACT_ADDRESS,
 )
-from cdp import BalanceMap
 
 contract_abi = [
     {
