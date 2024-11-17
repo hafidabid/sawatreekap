@@ -448,91 +448,103 @@ contract_abi = [
 ]
 
 
-async def tree_nft():
+async def reward_nft():
     while True:
         try:
-            process_tree = (
-                await mongo_instance["tree_transaction"]
-                .find({"finished_at": None})
-                .limit(3)
+            now = datetime.now().timestamp()
+            quests = (
+                await mongo_instance["quests"]
+                .find({"show": True, "period_end": {"$gt": now}})
                 .to_list(length=None)
             )
 
-            print("we're going to mint nft -> ", len(process_tree))
+            print("hi bangkok")
+            for quest in quests:
+                try:
+                    current_awardee = (
+                        await mongo_instance["quest_awardee"]
+                        .find({"quest_id": quest["_id"]})
+                        .to_list(length=None)
+                    )
 
-            # mint nft
-            web3 = Web3(Web3.HTTPProvider(NFT_CHAIN))
+                    current_awardee_address = [
+                        awardee["address"] for awardee in current_awardee
+                    ]
 
-            nft = web3.eth.contract(
-                address=Web3.to_checksum_address(NFT_CONTRACT_ADDRESS), abi=contract_abi
-            )
+                    new_eligible = (
+                        await mongo_instance["tree_transaction"]
+                        .find({"address": {"$nin": current_awardee_address}})
+                        .to_list(length=None)
+                    )
 
-            minter_address = Web3.to_checksum_address(NFT_ADMIN_ADDRESS)
-            private_key = NFT_ADMIN_PK
+                    # doing aggregation
+                    process_tree = {}
 
-            for tree in process_tree:
-                tree_address = tree["address"]
+                    for tree in new_eligible:
+                        tree_address = tree["address"]
+                        if tree_address in process_tree.keys():
+                            process_tree[tree_address]["amount"] += 1
+                        else:
+                            process_tree[tree_address] = {
+                                "address": tree_address,
+                                "amount": 1,
+                            }
 
-                tree_amount = 1
+                    list_eligible = []
+                    for t, v in process_tree.items():
+                        if v["amount"] >= quest["num_of_tree"]:
+                            list_eligible.append(v["address"])
 
-                active_nft = (
-                    await mongo_instance["tree_nft"]
-                    .find({"finished_at": {"$ne": None}})
-                    .to_list(length=None)
-                )
+                    for eligible in list_eligible:
+                        # mint nft
+                        web3 = Web3(Web3.HTTPProvider(quest["nft_rpc_url"]))
 
-                new_token_id = len(active_nft) + 1
-                txn = nft.functions.createNFT(
-                    Web3.to_checksum_address(tree_address)
-                ).build_transaction(
-                    {
-                        "chainId": 137,  # Rinkeby is 4
-                        "gas": 200000,
-                        "gasPrice": web3.to_wei("50", "gwei"),
-                        "nonce": web3.eth.get_transaction_count(minter_address),
-                    }
-                )
-                signed_txn = web3.eth.account.sign_transaction(
-                    txn, private_key=private_key
-                )
-                txn_hash = web3.eth.send_raw_transaction(signed_txn.raw_transaction)
-                txn_receipt = web3.eth.wait_for_transaction_receipt(txn_hash)
+                        nft = web3.eth.contract(
+                            address=Web3.to_checksum_address(
+                                quest["nft_contract_address"]
+                            ),
+                            abi=contract_abi,
+                        )
 
-                # save data in mongo
-                await mongo_instance["tree_nft"].insert_one(
-                    {
-                        "address": tree_address.lower().strip(),
-                        "token_id": new_token_id,
-                        "amount": tree_amount,
-                        "status": "ok",
-                        "txHash": str(txn_receipt["transactionHash"]),
-                        "created_at": datetime.now().timestamp(),
-                        "updated_at": datetime.now().timestamp(),
-                        "token_uri": f"https://polygon.blockscout.com/address/{NFT_CONTRACT_ADDRESS}",
-                    }
-                )
-                print(f"Minted NFT with Token ID {new_token_id} to {tree_address}")
+                        minter_address = Web3.to_checksum_address(NFT_ADMIN_ADDRESS)
+                        private_key = NFT_ADMIN_PK
 
-                # update status in table tree_transaction
-                now = datetime.now().timestamp()
-                ta = tree_address.lower().strip()
+                        txn = nft.functions.createNFT(
+                            Web3.to_checksum_address(eligible)
+                        ).build_transaction(
+                            {
+                                "chainId": 137,  # Rinkeby is 4
+                                "gas": 200000,
+                                "gasPrice": web3.to_wei("50", "gwei"),
+                                "nonce": web3.eth.get_transaction_count(minter_address),
+                            }
+                        )
+                        signed_txn = web3.eth.account.sign_transaction(
+                            txn, private_key=private_key
+                        )
+                        txn_hash = web3.eth.send_raw_transaction(
+                            signed_txn.raw_transaction
+                        )
+                        txn_receipt = web3.eth.wait_for_transaction_receipt(txn_hash)
 
-                tx_hash = txn_receipt["transactionHash"]
-                # convert it to string
-                tx_hash = web3.eth.get_transaction_receipt(tx_hash)
+                        # Save the reward data in mongodb
+                        tx_hash = txn_receipt["transactionHash"]
+                        # convert it to string
+                        tx_hash = web3.eth.get_transaction_receipt(tx_hash)
 
-                await mongo_instance["tree_transaction"].update_many(
-                    {"address": ta},
-                    {
-                        "$set": {
-                            "finished_at": now,
-                            "status": "ok",
-                            "updated_at": now,
-                            "txHash": tx_hash,
-                            "token_id": new_token_id,
-                        }
-                    },
-                )
+                        await mongo_instance["quest_awardee"].insert_one(
+                            {
+                                "quest_id": quest["_id"],
+                                "address": eligible,
+                                "reward": "1 nft",
+                                "created_at": datetime.now().timestamp(),
+                                "tx_hash": tx_hash,
+                            }
+                        )
+
+                except Exception as e:
+                    traceback.print_exc()
+                    print("reward_nft woker err: ", e)
 
         except Exception as e:
             traceback.print_exc()
@@ -542,7 +554,7 @@ async def tree_nft():
 
 
 def run_tree():
-    asyncio.run(tree_nft())
+    asyncio.run(reward_nft())
 
 
 if __name__ == "__main__":

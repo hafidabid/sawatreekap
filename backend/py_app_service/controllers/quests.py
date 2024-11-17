@@ -29,7 +29,9 @@ class QuestController:
             query["title"] = {"$regex": search, "$options": "i"}
 
         cursor = (
-            mongo_instance["quests"].find(query).sort(order_by, 1 if order_direction == "asc" else -1)
+            mongo_instance["quests"]
+            .find(query)
+            .sort(order_by, 1 if order_direction == "asc" else -1)
         )
 
         quests = await cursor.to_list(length=None)

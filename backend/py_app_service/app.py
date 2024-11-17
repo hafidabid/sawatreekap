@@ -20,6 +20,8 @@ from py_app_service.models import (
 )
 from py_app_service.utils import jwt_middleware
 from typing import Literal
+
+from py_app_service.workers.reward_nft import reward_nft
 from py_app_service.workers.tree_nft import tree_nft
 
 app = FastAPI()
@@ -49,6 +51,13 @@ async def root():
 async def worker_runner():
     global worker_task
     worker_task = asyncio.create_task(tree_nft())
+    print("Worker started")
+
+
+@app.on_event("startup")
+async def worker_runner():
+    global worker_task2
+    worker_task = asyncio.create_task(reward_nft())
     print("Worker started")
 
 
@@ -82,11 +91,19 @@ async def authenticate(auth_data: AuthUser):
 async def test_middleware(user=Depends(jwt_middleware)):
     return {"message": "this is yours", "data": user}
 
+
 @app.get("/my-tree")
 async def my_tree(user=Depends(jwt_middleware)):
     address = user["address"]
     data = await MyTree.get_my_tree_nft(address)
-    return {"message": "this is yours", "data": data}
+    return {"message": "this is yours t", "data": data}
+
+
+@app.get("/my-awards")
+async def my_tree(user=Depends(jwt_middleware)):
+    address = user["address"]
+    data = await MyTree.get_my_awardee(address)
+    return {"message": "this is yours a", "data": data}
 
 
 @app.get("/quests")
