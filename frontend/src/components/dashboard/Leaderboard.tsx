@@ -1,24 +1,63 @@
-// components/Leaderboard/Leaderboard.tsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import LeaderboardTab from './LeaderboardTab';
 
-type TabType = 'all-time' | 'weekly'; // Define a union type for allowed tabs
+type TabType = 'all-time' | 'weekly';
+
+interface LeaderboardItem {
+    id: number;
+    name: string;
+    message: string;
+    trees: number;
+    date: string;
+}
 
 const Leaderboard: React.FC = () => {
     const [activeTab, setActiveTab] = useState<TabType>('all-time');
+    const [leaderboardData, setLeaderboardData] = useState<{ [key in TabType]: LeaderboardItem[] }>({
+        'all-time': [],
+        'weekly': []
+    });
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    const leaderboardData: { [key in TabType]: { id: number; name: string; message: string; trees: number; date: string }[] } = {
-        'all-time': [
-            { id: 1, name: 'Anonymous', message: 'haha', trees: 1, date: '11/16/2024, 10:32:04 AM' },
-            { id: 2, name: 'From nephew', message: 'For Uncle Bruce', trees: 11, date: '11/16/2024, 10:11:42 AM' },
-            { id: 3, name: 'THE VALLEY SCHOOL KINDERGARTEN', message: 'Yay! Go trees!!', trees: 5, date: '11/16/2024, 7:59:08 AM' },
-            { id: 4, name: 'Barbara Rauhuff', message: '', trees: 1, date: '11/16/2024, 6:04:55 AM' },
-        ],
-        'weekly': [
-            { id: 1, name: 'Anonymous', message: 'Just planted a tree!', trees: 2, date: '11/15/2024, 9:15:23 AM' },
-            { id: 2, name: 'Nature Lover', message: 'For the planet!', trees: 3, date: '11/14/2024, 5:11:18 PM' },
-        ],
-    };
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            setError(null);
+
+            try {
+                const response = await fetch('https://sawatreekap-api.anak-kabupaten.my.id/rank');
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                const allTimeData = result.data.map((item: any, index: number) => ({
+                    id: index + 1,
+                    name: item.address,
+                    message: "Achievement message here",
+                    trees: item.amount,
+                    date: new Date().toLocaleString()
+                }));
+
+                const weeklyData = allTimeData.slice(0, 5); // Example of using the top 5 entries for weekly data
+
+                setLeaderboardData({
+                    'all-time': allTimeData,
+                    'weekly': weeklyData
+                });
+            } catch (error) {
+                setError((error as Error).message || 'Failed to fetch data');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    if (loading) return <div className="text-center text-white">Loading...</div>;
+    if (error) return <div className="text-center text-red-500">Error: {error}</div>;
 
     return (
         <div className="bg-gray-900 text-gray-100 p-6 rounded-lg shadow-md max-w-3xl mx-auto">

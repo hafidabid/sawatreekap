@@ -3,7 +3,19 @@ import "../../../styles/global.css";
 import Layout from '@/components/dashboard/Layout';
 import QuestTab from '@/components/dashboard/QuestTab';
 
-const Quest: React.FC = () => {
+interface Quest {
+    id: number;
+    title: string;
+    description: string;
+    reward: string;
+    status: 'Achieved' | 'In Progress';
+}
+
+interface QuestsPageProps {
+    quests: Quest[];
+}
+
+const QuestsPage: React.FC<QuestsPageProps> = ({ quests }) => {
     return (
         <Layout>
             <div className="flex items-center justify-between mb-6">
@@ -12,9 +24,30 @@ const Quest: React.FC = () => {
                     Plant Tree
                 </button>
             </div>
-            <QuestTab />
+            <QuestTab quests={quests} />
         </Layout>
     );
 };
 
-export default Quest;
+export async function getServerSideProps() {
+    const res = await fetch('https://sawatreekap-api.anak-kabupaten.my.id/quests?order_by=created_at&order_direction=asc');
+    const data = await res.json();
+
+    // Transform API response to fit the component structure if needed
+    const quests = data.map((item: any) => ({
+        id: item._id,
+        title: item.title,
+        description: item.description,
+        reward: 'Tree NFT',
+        status: item.num_of_tree >= 10 ? 'Achieved' : 'In Progress',
+    }));
+
+    return {
+        props: {
+            quests,
+        },
+    };
+}
+
+export default QuestsPage;
+
