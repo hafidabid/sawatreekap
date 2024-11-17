@@ -46,8 +46,10 @@ class MyTree:
         res = []
         for tree in my_award:
             tree["_id"] = str(tree["_id"])
-            tree['quest'] = await mongo_instance["quests"].find_one({"_id": tree['quest_id']})
-            tree['quest']['_id'] = str(tree['quest']['_id'])
+            tree["quest"] = await mongo_instance["quests"].find_one(
+                {"_id": tree["quest_id"]}
+            )
+            tree["quest"]["_id"] = str(tree["quest"]["_id"])
             res.append(tree)
 
         return res
@@ -55,6 +57,7 @@ class MyTree:
     @classmethod
     async def get_rank(cls):
         tree_tx = await mongo_instance["tree_transaction"].find().to_list(length=None)
+        user = await mongo_instance["users"].find().to_list(length=None)
 
         temp = {}
 
@@ -65,6 +68,11 @@ class MyTree:
             else:
                 temp[address] = 1
 
+        for user in user:
+            address = user["address"]
+            if address not in temp.keys():
+                temp[address] = 0
+
         res = []
         for address in temp.keys():
             res.append({"address": address, "amount": temp[address]})
@@ -72,6 +80,6 @@ class MyTree:
         res.sort(key=lambda x: x["amount"], reverse=True)
 
         for i in range(len(res)):
-            res[i]["rank"] = i+1
+            res[i]["rank"] = i + 1
 
         return res
