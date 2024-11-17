@@ -1,3 +1,6 @@
+import base64
+import binascii
+
 from py_app_service.database import mongo_instance
 
 
@@ -46,12 +49,22 @@ class MyTree:
         res = []
         for tree in my_award:
             tree["_id"] = str(tree["_id"])
+
+
+            byte_data = base64.b64decode(tree['tx_hash']['transactionHash'])
+
+            # Convert the bytes to a hex string
+
+            tree["tx_hash"]  = str(byte_data)
             tree["quest"] = await mongo_instance["quests"].find_one(
                 {"_id": tree["quest_id"]}
             )
+
+            tree["quest_id"] = str(tree["quest_id"])
             tree["quest"]["_id"] = str(tree["quest"]["_id"])
             res.append(tree)
 
+        print("reslek", res)
         return res
 
     @classmethod

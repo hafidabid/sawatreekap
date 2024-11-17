@@ -36,7 +36,7 @@ const AuthorizationProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const checkAuth = async () => {
     if (address && !needLogin) {
-      const storedToken = localStorage.getItem(`token-${address}`);
+      const storedToken = localStorage.getItem(`token`);
       if (!storedToken) {
         setNeedLogin(true);
         setIsLoading(true);
@@ -59,6 +59,9 @@ const AuthorizationProvider: React.FC<{ children: React.ReactNode }> = ({
         return;
       }
 
+      // put token in state
+      setToken(storedToken);
+
       try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URI}/test-middleware`,
@@ -78,7 +81,7 @@ const AuthorizationProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const disconnect = () => {
-    if (address) localStorage.removeItem(`token-${address}`);
+    if (address) localStorage.removeItem(`token`);
     setToken(null);
     setNonce(null);
     setNeedLogin(false);
@@ -115,7 +118,7 @@ const AuthorizationProvider: React.FC<{ children: React.ReactNode }> = ({
         if (res.ok) {
           const { data } = await res.json();
           setToken(data.token);
-          localStorage.setItem(`token-${address}`, data.token);
+          localStorage.setItem(`token`, data.token);
           setNeedLogin(false);
         } else throw new Error("Authentication failed");
       } catch (error) {
