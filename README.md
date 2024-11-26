@@ -21,7 +21,7 @@ Sawatreekap uses a comprehensive Web3 tech stack to ensure security, scalability
 
 - **Frontend**: Built with React and Next.js for responsive and performant user interfaces. The Coinbase CDP SDK is integrated for user authentication and secure transaction handling.
 - **Backend**: Built with Python for handling API requests, connected to MongoDB for storing non-sensitive user data and other metadata.
-- **Blockchain**: Smart contracts are deployed on the Base Sepolia, which provides scalability, lower transaction costs, and compatibility with Ethereum. Blockscout is used for tracking transaction history and contract interactions.
+- **Blockchain**: Smart contracts are deployed on the Base Sepolia and Polygon PoS Mainnet, which provides scalability, lower transaction costs, and compatibility with Ethereum. Blockscout is used for tracking transaction history and contract interactions.
 
 ---
 
